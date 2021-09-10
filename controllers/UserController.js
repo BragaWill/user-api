@@ -65,6 +65,17 @@ class UserController {
       res.send('Algo deu errado!')
     }
   }
+  async destroy(req, res) {
+    var id = req.params.id
+    var result = await User.delete(id)
+    if (result.status) {
+      res.status(200)
+      res.send('ok')
+    } else {
+      res.status(406)
+      res.send(result.err)
+    }
+  }
 }
 
 module.exports = new UserController()
