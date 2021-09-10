@@ -2,37 +2,51 @@ const User = require('../models/User')
 
 class UserController {
 
-  async index(req, res){}
+  async index(req, res) {
+    var users = await User.findAll()
+    res.json(users)
+  }
 
   async create(req, res) {
     try {
-      var {email, password, name} = req.body
+      var { email, password, name } = req.body
       var emailExists = await User.findEmail(email)
 
-      if(emailExists) {
+      if (emailExists) {
         res.status(406)
-        res.send({err: 'O email informado já está cadastrado'})
+        res.send({ err: 'O email informado já está cadastrado' })
         return
       }
 
-      if (email === undefined || email === ''){        
+      if (email === undefined || email === '') {
         res.status(400)
-        res.json({err: 'O email informado é inválido!'})
+        res.json({ err: 'O email informado é inválido!' })
         return
       }
 
-      if (password === undefined || password === ''){
+      if (password === undefined || password === '') {
         res.status(400)
-        res.send({err: 'A senha informada é invalida!'})
-        return 
+        res.send({ err: 'A senha informada é invalida!' })
+        return
       }
 
       await User.create(email, password, name)
 
       res.status(200)
       res.send('Ok')
-    }catch(err) {
+    } catch (err) {
       console.log(err)
+    }
+  }
+  async findUser(req, res) {
+    var id = req.params.id
+    var user = await User.findById(id)
+    if (user === undefined) {
+      res.status(404)
+      res.json({})
+    } else {
+      res.status(200)
+      res.json(user)
     }
   }
 }
