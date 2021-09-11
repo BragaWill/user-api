@@ -1,4 +1,5 @@
 const User = require('../models/User')
+const PasswordToken = require('../models/PasswordToken')
 
 class UserController {
 
@@ -10,13 +11,6 @@ class UserController {
   async create(req, res) {
     try {
       var { email, password, name } = req.body
-      var emailExists = await User.findEmail(email)
-
-      if (emailExists) {
-        res.status(406)
-        res.send({ err: 'O email informado já está cadastrado' })
-        return
-      }
 
       if (email === undefined || email === '') {
         res.status(400)
@@ -27,6 +21,14 @@ class UserController {
       if (password === undefined || password === '') {
         res.status(400)
         res.send({ err: 'A senha informada é invalida!' })
+        return
+      }
+
+      var emailExists = await User.findEmail(email)
+
+      if (emailExists) {
+        res.status(406)
+        res.send({ err: 'O email informado já está cadastrado' })
         return
       }
 
@@ -71,6 +73,18 @@ class UserController {
     if (result.status) {
       res.status(200)
       res.send('ok')
+    } else {
+      res.status(406)
+      res.send(result.err)
+    }
+  }
+  async recoverPassword(req, res) {
+    var email = req.body.email
+    var result = await PasswordToken.create(email)
+    if (result.status) {
+      // NodeMailer.Send() ==> email p/ usuario recuperar a senha
+      res.status(200)
+      res.send(result.token)
     } else {
       res.status(406)
       res.send(result.err)

@@ -31,13 +31,11 @@ class User {
   async findAll() {
     try {
       var data = await knex.select(['id', 'name', 'email', 'role']).table('users')
-
       if (data.length > 0) {
-        return data[0]
+        return data
       } else {
         return undefined
       }
-
     } catch (err) {
       console.log(err)
       return []
@@ -46,8 +44,26 @@ class User {
 
   async findById(id) {
     try {
-      var data = knex.select(['id', 'name', 'email', 'role']).table('users').where({ id: id })
-      return data
+      var data = await knex.select(['id', 'name', 'email', 'role']).from('users').where({ id: id })
+      if(data.length > 0){
+        return data[0]
+      }else{
+        return undefined
+      }
+    } catch (err) {
+      console.log(err)
+      return undefined
+    }
+  }
+
+  async findByEmail(email) {
+    try {
+      var data = await knex.select(['id', 'name', 'email', 'role']).table('users').where({ email: email })
+      if(data.length > 0){
+        return data[0]
+      }else{
+        return undefined
+      }
     } catch (err) {
       console.log(err)
       return undefined
@@ -89,7 +105,7 @@ class User {
 
   async delete(id) {
     var user = await this.findById(id)
-    if (user.length === 0) {
+    if (user === undefined) {
       return { status: false, err: 'O usuário não existe.' }
     } else {
       try {
